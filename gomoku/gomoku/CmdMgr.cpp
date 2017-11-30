@@ -92,12 +92,14 @@ void CmdMgr::checkCmdWithPos(const  std::string & cmd, const std::string & attr)
 	}
 	else if (cmd == "TURN") {//temp ---------------------- temp
 		std::vector<std::string> args(split(attr, ','));
+		Pos pos = Pos(atoi(args[0].c_str()), atoi(args[1].c_str()));
 		positions.push_back(Pos(atoi(args[0].c_str()), atoi(args[1].c_str())));
-		Pos pos = randomPos(info.size);
-		
+		//Pos pos = randomPos(info.size);
+		/*
 		while ( std::find(positions.begin(), positions.end(), pos) != positions.end())
 			pos = randomPos(info.size);
-		positions.push_back(pos);
+		positions.push_back(pos);*/
+		pos = root.play(pos);
 		std::cout << std::to_string(pos.x) << "," << std::to_string(pos.y) << std::endl;
 	}
 	else {

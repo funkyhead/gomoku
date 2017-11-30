@@ -2,61 +2,20 @@
 #ifndef _ROOT_H_
 #define	_ROOT_H_
 
-#include "CmdMgr.h"
+#include "Includes.h"
 
 #define NB_NODE_SEARCH 3
 #define EXPLORATION_CONST 1.44
 
-struct Node
-{
-	std::vector<Node> childs;
-	int		nbTry;
-	int		nbWin;
-	bool	color;
-	Pos		position;
 
-	Node() {
-		nbTry = 0;
-		nbWin = 0;
-	}
-
-	Node(bool _color) {
-		nbTry = 0;
-		nbWin = 0;
-		color = _color;
-	}
-
-	void addNode(Node node) {
-		childs.push_back(node);
-	}
-};
-
-struct Clock
-{
-	std::chrono::high_resolution_clock::time_point then;
-	std::chrono::duration<double> timeToSpend;
-
-	Clock(){}
-
-	void startClock(double _timeToSpend) {
-		then = std::chrono::high_resolution_clock::now();
-		timeToSpend = std::chrono::duration<double>(_timeToSpend);
-	}
-
-	std::chrono::duration<double> getRunTime() {
-		return (std::chrono::high_resolution_clock::now() - then);
-	}
-
-	bool	timeOut() {
-		return (std::chrono::high_resolution_clock::now() - then >= timeToSpend);
-	}
-};
-
-class Root
+class Root : public Node
 {
 private:
-	std::vector<Node>	rootsNode;
-	int					nbSimulation;
+	double					nbSimulation;
+	Color				color;
+	Info				info;
+	Node				*currentNode;
+	Clock				timer;
 	
 public:
 
@@ -64,14 +23,65 @@ public:
 	Root(const std::string &);
 	~Root();
 
-	Pos	play(double runTime);
+/*
+	friend std::ostream& operator<<(std::ostream& os, const Root & root) {
+		os << root.rootsNode << std::endl;
+		os << root.nbSimulation << std::endl;
+		os << root.color;
+	}
+	
+	friend std::ostream& operator>>(std::istream& is, const Root & root) {
+		is << root.rootsNode << root.nbSimulation << root.color;
+	}*/
+
+	Pos	play(Pos);
+
 
 private:
 
-	void select();
-	void expand();
-	bool simulate();
-	void update();
+
+	//runing Members for play
+	void  select(Node *);
+	Node *expand(Node*);
+	void printBoard(Color ** board);
+	void simulate(Node *);
+	void update(Node *,bool);
+
+
+	//utils for selection
+	double getNbSimulationForDepth(Node * node, int depth);
+	Node * selectOneNode(Node * node);
+	int setBoard(Color ** color, Node * node);
+
+
+	//utils to aknowlege winning play
+	bool isFivePositionAligned(Color **& board, Pos currentPos, Color color);
+	bool VerticalAlign(Color **& board, Pos & currentPos, Color color);
+	bool HorizontalAlign(Color **& board, Pos currentPos, Color color);
+	bool RightDiagonalAlign(Color **& board, Pos currentPos, Color color);
+	bool LeftDiagonalAlign(Color **& board, Pos currentPos, Color color);
+
+
+
+	//deprecated , not use anywhere
+	std::vector<Pos>	getAllPreviousSelfMove(Node *node);
+	std::vector<Move>	getAllPreviousMove(Node *node);
+
+
+	void deleteNodes(Node *node) {
+		while (!node->childs.empty()) {
+			deleteNodes(node->childs[0]);
+		}
+		delete node;
+	}
+
+	Pos randomPos(int size) {
+		int	x, y;
+		x = rand() % size;
+		y = rand() % size;
+
+		return Pos(x, y);
+	}
 };
 
 #endif // !_ROOT_H_
