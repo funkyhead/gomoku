@@ -6,7 +6,7 @@
 
 #define NB_NODE_SEARCH 3
 #define EXPLORATION_CONST 1.44
-
+#define LOGFILE "C:/Users/remi/Desktop/ia_gomoku/board_log.txt"
 
 class Root : public Node
 {
@@ -50,6 +50,7 @@ private:
 
 	//utils for selection
 	double getNbSimulationForDepth(Node * node, int depth);
+	void logToFile(Node * node);
 	Node * selectOneNode(Node * node);
 	int setBoard(Color ** color, Node * node);
 

@@ -79,7 +79,38 @@ double Root::getNbSimulationForDepth(Node *node, int depth) {
 }
 
 
+void Root::logToFile(Node *node) {
+	Color **board = new Color*[info.size];
+	for (int i = 0; i < info.size; i++) {
+		board[i] = new Color[info.size];
+		for (int j = 0; j < info.size; j++) {
+			board[i][j] = Color::NONE;
+		}
+	}
+	setBoard(board, node);
 
+
+	std::ofstream file(LOGFILE, std::ofstream::app);
+	char player = 'X';
+	if (node->move.color == Color::WHITE)
+		player = 'O';
+	file << " PLAYER[ "<<  player << " ]  WIN/PLAY[ " << node->nbWin << " / "<< node->nbTry << " ]  MOVE[" << node->move.pos.x << ", "<< move.pos.y << "]" << std::endl;
+
+	for (int i = 0; i < info.size; i++) {
+		for (int j = 0; j < info.size; j++) {
+			if (board[i][j] == Color::WHITE)
+				file << "O";
+			else if (board[i][j] == Color::BLACK)
+				file << "X";
+			else
+				file << "_";
+			file << " ";
+		}
+		file << std::endl;
+	}
+	file << std::endl;
+	file.close();
+}
 
 Node *Root::selectOneNode(Node *node) {
 
@@ -90,7 +121,10 @@ Node *Root::selectOneNode(Node *node) {
 	//std::cout << "nb simulation for depth : " << nbSimulationForDepth << std::endl;
 
 	for (std::vector<Node*>::iterator it = node->childs.begin(); it != node->childs.end(); it++) {
-
+		/*
+		if (node->depth == 6) {
+			logToFile(*it);
+		}*/
 		/*
 		std::cout << "nbTry for Node : " <<  (*it)->nbTry << std::endl;
 		std::cout << "computed value : " << nbSimulationForDepth / (*it)->nbTry << std::endl;
@@ -133,12 +167,12 @@ Node *Root::expand(Node*node)
 			board[i][j] = Color::NONE;
 		}
 	}
-	int nbPlay = setBoard(board, node);
+	setBoard(board, node);
 
 	for (int i = 0; i < info.size; i ++) {
 		for (int j = 0; j < info.size; j ++) {
 			if (board[i][j] == Color::NONE) {
-				Node *newChild = new Node(Move(Pos(j, i), color), node->depth + 1, node);
+				Node *newChild = new Node( Move( Pos(j, i), Color(1 + (node->move.color == Color::BLACK) ) ), node->depth + 1, node);
 				node->childs.push_back(newChild);
 				simulate(newChild);
 				//std::cout << "nb try after simulation for child :  " << newChild->nbTry << std::endl;
