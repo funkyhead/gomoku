@@ -4,18 +4,20 @@
 
 #include "Includes.h"
 
-#define NB_NODE_SEARCH 3
 #define EXPLORATION_CONST 1.44
 #define LOGFILE "C:/Users/remi/Desktop/ia_gomoku/board_log.txt"
-
+#define MAX 5
 class Root : public Node
 {
 private:
-	double					nbSimulation;
+	//double					nbSimulation;
 	Color				color;
 	Info				info;
 	Node				*currentNode;
+	Node				*rootNode;
 	Clock				timer;
+	std::ofstream		logFile;
+	Color				**virtualBoard;
 	
 public:
 
@@ -23,11 +25,13 @@ public:
 	Root(const std::string &);
 	~Root();
 
-/*
+	/*
 	friend std::ostream& operator<<(std::ostream& os, const Root & root) {
-		os << root.rootsNode << std::endl;
-		os << root.nbSimulation << std::endl;
+		//os << root.rootsNode << std::endl;
 		os << root.color;
+		os << root.childs;
+		os << root.nbWin;
+		os << root.nbTry;
 	}
 	
 	friend std::ostream& operator>>(std::istream& is, const Root & root) {
@@ -35,24 +39,32 @@ public:
 	}*/
 
 	Pos	play(Pos);
+	Pos begin();
 
+
+	void simulate(Node *);
+
+	void logNode();
+	bool testBoard();
+	void restart();
 
 private:
 
-
 	//runing Members for play
 	void  select(Node *);
-	Node *expand(Node*);
+	void expand(Node*);
 	void printBoard(Color ** board);
-	void simulate(Node *);
-	void update(Node *,bool);
+	void update(Node *, double);
 
 
 	//utils for selection
 	double getNbSimulationForDepth(Node * node, int depth);
 	void logToFile(Node * node);
-	Node * selectOneNode(Node * node);
-	int setBoard(Color ** color, Node * node);
+	Node * getNextMove(Node * node);
+	Result expectedOutput(Node * node);
+	Node * selectBestChild(Node * node);
+	Node * selectOneNodeWithMctsAlgo(Node * node);
+	void setBoard(Color ** color, Node * node);
 
 
 	//utils to aknowlege winning play
@@ -67,6 +79,8 @@ private:
 	//deprecated , not use anywhere
 	std::vector<Pos>	getAllPreviousSelfMove(Node *node);
 	std::vector<Move>	getAllPreviousMove(Node *node);
+
+
 
 
 	void deleteNodes(Node *node) {

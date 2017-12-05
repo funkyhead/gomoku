@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <math.h>
 #include <chrono>
+#include <random>
 
 
 //----------- INFO: USE TO STORE AND ACCESS INFORMATION ABOUT GAME RULES SUCH AS BOARD SIZE OR AMOUNT OF TIME TO PLAY A TURN
@@ -36,6 +37,15 @@ enum class Color
 	WHITE,
 	BLACK
 };
+
+enum class Result
+{
+	NONE,
+	WIN,
+	LOOSE
+};
+
+
 
 //----------- POSITION: USE TO STORE POSITION ON THE BOARD
 struct Pos
@@ -74,6 +84,7 @@ struct Move
 	}
 };
 
+
 //----------- NODE: USE TO CREATE THE THREE NODE FOR THE MONTE-CARLO THREE SEARCH
 struct Node
 {
@@ -84,13 +95,14 @@ struct Node
 	double		nbWin;
 	int		depth;
 	Move	move;
-
+	Result	res;
 
 	Node() {
 		father = NULL;
 		nbTry = 0;
 		nbWin = 0;
 		depth = 0;
+		res = Result::NONE;
 	}
 
 	Node(Move _move, int _depth, Node * _father) {
@@ -99,6 +111,7 @@ struct Node
 		nbWin = 0;
 		depth = _depth;
 		move = _move;
+		res = Result::NONE;
 	}
 
 	void addNode(Node *node) {

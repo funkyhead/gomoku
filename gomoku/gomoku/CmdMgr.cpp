@@ -55,10 +55,15 @@ void CmdMgr::checkCmd(const std::string &cmd)
 	else if (cmd == "BOARD") {
 
 	}
+	else if (cmd == "LOG") {
+		root.logNode();
+	}
 	else if (cmd == "BEGIN") {
-
+		Pos pos = root.begin();
+		std::cout << std::to_string(pos.x) << "," << std::to_string(pos.y) << std::endl;
 	}
 	else if (cmd == "RESTART") {
+		root.restart();
 		std::cout << "OK" << std::endl;
 	}
 	else if (isPosition(cmd)) {
@@ -71,8 +76,13 @@ void CmdMgr::checkCmd(const std::string &cmd)
 
 Pos randomPos(int size) {
 	int	x, y;
-	x = rand() % size;
-	y = rand() % size;
+
+	std::random_device rd;     // only used once to initialise (seed) engine
+	std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
+	std::uniform_int_distribution<int> uni(0, size); // guaranteed unbiased
+
+	x = uni(rng);
+	y = uni(rng);
 
 	return Pos(x, y);
 }
