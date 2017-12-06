@@ -7,33 +7,25 @@
 #include "Root.h"
 
 class CmdMgr {
-	//private var
 private:
 	//temporary var
 	Info				info;
 	std::vector<Pos>	positions;
 	std::ofstream		log;
-	Root				root;
-	//end
+	//Root				root;
+	Root				mcts;
 
-
-	//public member
 public:
-
 	CmdMgr();
 	~CmdMgr();
-
-	CmdMgr(int i) {
+	CmdMgr(int i)
+	{
 		log.open("C:/Users/remi/Desktop/ia_log.txt");
 	}
-
-
 	void	parseCmd(std::string);
-	//private member
+
 private:
-
 	std::vector<std::string>	split(const std::string & str, char sep);
-
 	void checkCmd(const std::string &);
 	void checkCmdWithPos(const std::string &, const std::string &);
 	void checkAttr(const std::string &);

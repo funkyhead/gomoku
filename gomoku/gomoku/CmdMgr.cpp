@@ -56,14 +56,15 @@ void CmdMgr::checkCmd(const std::string &cmd)
 
 	}
 	else if (cmd == "LOG") {
-		root.logNode();
+		//root.logNode();
+		std::cout << info.boardSize << std::endl;
 	}
 	else if (cmd == "BEGIN") {
-		Pos pos = root.begin();
+		Pos pos = mcts.begin();
 		std::cout << std::to_string(pos.x) << "," << std::to_string(pos.y) << std::endl;
 	}
 	else if (cmd == "RESTART") {
-		root.restart();
+		mcts.restart();
 		std::cout << "OK" << std::endl;
 	}
 	else if (isPosition(cmd)) {
@@ -97,19 +98,19 @@ void CmdMgr::checkCmdWithPos(const  std::string & cmd, const std::string & attr)
 		std::invalid_argument(attr + std::string(" does not fit any position"));
 	}*/
 	 if (cmd == "START") {//temp for alpha test with random, pls bind in gomokuMaster class
-		info.size = atoi(attr.c_str());
+		info.boardSize = atoi(attr.c_str());
 		std::cout << "OK" << std::endl;
 	}
 	else if (cmd == "TURN") {//temp ---------------------- temp
 		std::vector<std::string> args(split(attr, ','));
 		Pos pos = Pos(atoi(args[0].c_str()), atoi(args[1].c_str()));
 		positions.push_back(Pos(atoi(args[0].c_str()), atoi(args[1].c_str())));
-		//Pos pos = randomPos(info.size);
+		//Pos pos = randomPos(info.boardSize);
 		/*
 		while ( std::find(positions.begin(), positions.end(), pos) != positions.end())
-			pos = randomPos(info.size);
+			pos = randomPos(info.boardSize);
 		positions.push_back(pos);*/
-		pos = root.play(pos);
+		pos = mcts.play(pos);
 		std::cout << std::to_string(pos.x) << "," << std::to_string(pos.y) << std::endl;
 	}
 	else {

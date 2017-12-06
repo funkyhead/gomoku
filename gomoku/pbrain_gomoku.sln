@@ -1,9 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2009
+VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gomoku", "gomoku\gomoku.vcxproj", "{BCA8542C-4D56-48C3-B74B-EC8B336E8CC2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pbrain-gomoku", "gomoku\gomoku.vcxproj", "{BCA8542C-4D56-48C3-B74B-EC8B336E8CC2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B42607E6-09D7-4081-BA6C-FBCFACDABE39}"
+	ProjectSection(SolutionItems) = preProject
+		gomoku\Root.h = gomoku\Root.h
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

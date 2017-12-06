@@ -5,8 +5,9 @@
 #include "Includes.h"
 
 #define EXPLORATION_CONST 1.44
-#define LOGFILE "C:/Users/remi/Desktop/ia_gomoku/board_log.txt"
+#define LOGFILE "C:/Users/eamil/Desktop/board_log.txt"
 #define MAX 5
+
 class Root : public Node
 {
 private:
@@ -47,14 +48,19 @@ public:
 	void logNode();
 	bool testBoard();
 	void restart();
+	int					expandRange;
 
 private:
 
 	//runing Members for play
 	void  select(Node *);
+	void  selectWithLimitedRange(Node *, int minX, int maxX, int minY, int maxY);
 	void expand(Node*);
+	void expandWithLimitedRange(Node*, int minX, int maxX, int minY, int maxY);
 	void printBoard(Color ** board);
 	void update(Node *, double);
+
+	void update(Node * node, double win, double nbplay);
 
 
 	//utils for selection
@@ -65,7 +71,7 @@ private:
 	Node * selectBestChild(Node * node);
 	Node * selectOneNodeWithMctsAlgo(Node * node);
 	void setBoard(Color ** color, Node * node);
-
+	RestrainedPos getRestrainedPos(Color ** color, int range);
 
 	//utils to aknowlege winning play
 	bool isFivePositionAligned(Color **& board, Pos currentPos, Color color);
@@ -94,6 +100,15 @@ private:
 		int	x, y;
 		x = rand() % size;
 		y = rand() % size;
+
+		return Pos(x, y);
+	}
+
+	Pos randomPos(int size, RestrainedPos rpos)
+	{
+		int	x, y;
+		x = (rand() % (rpos.max.x - rpos.min.x)) + rpos.min.x;
+		y = (rand() % (rpos.max.y - rpos.min.y)) + rpos.min.y;
 
 		return Pos(x, y);
 	}

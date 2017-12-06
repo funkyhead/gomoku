@@ -145,6 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CmdMgr.h" />
+    <ClInclude Include="Mcts.h" />
     <ClInclude Include="Includes.h" />
     <ClInclude Include="Root.h" />
     <ClInclude Include="stdafx.h" />
@@ -153,6 +154,7 @@
   <ItemGroup>
     <ClCompile Include="CmdMgr.cpp" />
     <ClCompile Include="gomoku.cpp" />
+    <ClCompile Include="Mcts.cpp" />
     <ClCompile Include="Root.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
