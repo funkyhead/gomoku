@@ -3,6 +3,8 @@
 #define	_ROOT_H_
 
 #include "Includes.h"
+#include "ThreadPool.h"
+#include <mutex>
 
 #define EXPLORATION_CONST 1.44
 #define LOGFILE "C:/Users/eamil/Desktop/board_log.txt"
@@ -19,6 +21,8 @@ private:
 	Clock				timer;
 	std::ofstream		logFile;
 	Color				**virtualBoard;
+	ThreadPool			*pool;
+	std::mutex			mtx;
 	
 public:
 
@@ -72,6 +76,8 @@ private:
 	Node * selectOneNodeWithMctsAlgo(Node * node);
 	void setBoard(Color ** color, Node * node);
 	RestrainedPos getRestrainedPos(Color ** color, int range);
+
+	void deleteBoard(Color ** board);
 
 	//utils to aknowlege winning play
 	bool isFivePositionAligned(Color **& board, Pos currentPos, Color color);

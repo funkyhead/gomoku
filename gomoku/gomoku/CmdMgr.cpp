@@ -56,8 +56,8 @@ void CmdMgr::checkCmd(const std::string &cmd)
 
 	}
 	else if (cmd == "LOG") {
-		//root.logNode();
-		std::cout << info.boardSize << std::endl;
+		mcts.logNode();
+		//std::cout << info.boardSize << std::endl;
 	}
 	else if (cmd == "BEGIN") {
 		Pos pos = mcts.begin();

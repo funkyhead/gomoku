@@ -4,6 +4,7 @@
 #define	_MCTS_H_
 
 #include "Includes.h"
+#include "ThreadPool.h"
 
 class Mcts
 {

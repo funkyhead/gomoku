@@ -1,9 +1,10 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(387,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (gomoku.vcxproj, pbrain_gomoku.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  stdafx.cpp
   Root.cpp
-c:\users\eamil\desktop\epitech\gomoku\gomoku\gomoku\root.cpp(236): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\eamil\desktop\epitech\gomoku\gomoku\gomoku\root.cpp(247): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Mcts.cpp
+c:\users\eamil\desktop\epitech\gomoku\gomoku\gomoku\mcts.cpp(212): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   gomoku.cpp
-c:\users\eamil\desktop\epitech\gomoku\gomoku\gomoku\gomoku.cpp(21): warning C4101: 'e': unreferenced local variable
+c:\users\eamil\desktop\epitech\gomoku\gomoku\gomoku\gomoku.cpp(20): warning C4101: 'e': unreferenced local variable
   CmdMgr.cpp
   Generating Code...
   gomoku.vcxproj -> C:\Users\eamil\Desktop\EPITECH\gomoku\gomoku\Debug\pbrain-gomoku.exe

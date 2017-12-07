@@ -17,6 +17,7 @@ Root::Root()
 	depth = 0;
 	logFile = std::ofstream(LOGFILE, std::ofstream::app);
 	expandRange = 3;
+	pool = new ThreadPool(std::thread::hardware_concurrency());
 
 	virtualBoard = new Color*[info.boardSize];
 	for (int i = 0; i < info.boardSize; i++) {
@@ -42,8 +43,8 @@ Root::~Root()
 }
 
 void Root::logNode() {
-	Node *node = currentNode->father;
-	logFile << "nb childs !: " << node->childs.size() << std::endl;
+	Node *node = currentNode;
+	logFile << "nb simu !: " << nbTries << std::endl;
 	for (std::vector<Node *>::iterator it = node->childs.begin(); it != node->childs.end(); it++) {
 		//if ((*it)->res != Result::NONE)
 		logToFile(*it);
@@ -75,7 +76,6 @@ Pos Root::play(Pos competitorLastPlay)
 {
 	if (competitorLastPlay.x == 0 && competitorLastPlay.y == 0)
 		logNode();
-	//
 	//launch timer
 	timer.startClock(info.timeout);
 
@@ -146,11 +146,10 @@ void Root::logToFile(Node *node) {
 	Color **board = virtualBoard;
 	setBoard(virtualBoard, node);
 
-
 	char player = 'X';
 	if (node->move.color == Color::WHITE)
 		player = 'O';
-	logFile << " PLAYER[ "<<  player << " ]  WIN/PLAY[ " << node->nbWins / node->nbTries << " ]  MOVE[" << (int)(node->move.pos.x) << ", "<< (int)(move.pos.y) << "]" << std::endl;
+	logFile << " PLAYER[ "<<  player << " ]  WIN/PLAY[ " << node->nbWins / node->nbTries << " ]  MOVE[" << (int)(node->move.pos.x) << ", "<< (int)(node->move.pos.y) << "]" << std::endl;
 	logFile << " WIN[ " << (int) node->res<< " ]" << std::endl;
 	for (int i = 0; i < info.boardSize; i++) {
 		for (int j = 0; j < info.boardSize; j++) {
@@ -171,26 +170,25 @@ void Root::logToFile(Node *node) {
 
 Node *Root::getNextMove(Node *node) {
 	Node *selectedNode = NULL;
-	double	maxSelectionValue = 0;
+	double	maxSelectionValue = -1;
 
 
 	for (std::vector<Node*>::iterator it = node->childs.begin(); it != node->childs.end(); it++) {
 		//setBoard(virtualBoard, *it);
+		Node *child = selectBestChild(*it);
 
-		double selectionValue = ((*it)->nbWins / (*it)->nbTries);
+		if ((child->nbWins / child->nbTries) == 1)
+			logFile << "find a winning play for the opponent" << std::endl;
+		double selectionValue = ((*it)->nbWins / (*it)->nbTries) - (child->nbWins / child->nbTries);
 
 
 		if (selectionValue >= maxSelectionValue)
 		{
-			if (expectedOutput(*it) != Result::LOOSE)
-			{
+			//if (expectedOutput(*it) != Result::LOOSE)
+			//{
 				maxSelectionValue = selectionValue;
 				selectedNode = (*it);
-			}
-			else
-			{
-				delete (*it);
-			}
+			//}
 		}
 	}
 	return selectedNode;
@@ -199,6 +197,8 @@ Node *Root::getNextMove(Node *node) {
 
 Result	Root::expectedOutput(Node *node){
 	if (node->res != Result::NONE || node->childs.empty()) {
+		//if (node->res == Result::LOOSE)
+		//std::cout << "I'm not fucking blind FUUUUCK" << std::endl;
 		return node->res;
 	}
 	return expectedOutput(selectBestChild(node));
@@ -208,7 +208,7 @@ Node *Root::selectBestChild(Node *node) {
 
 	//std::cout << "running mcts select with : " << node->childs.size() << " childs" << std::endl;
 
-	Node *selectedNode = NULL;
+	Node *selectedNode = node;
 	double	maxSelectionValue = 0;
 
 	//double nbSimulationForDepth = getNbSimulationForDepth(this, node->depth + 1);
@@ -265,9 +265,11 @@ void Root::restart() {
 
 void  Root::select(Node *node)
 {
+	//std::cout << "Begin SELECT" << std::endl;
+
 	//std::cout << "select lvl : " << node->depth << std::endl;
 
-	if (node->depth == info.boardSize * info.boardSize || node == NULL)
+	if (node == NULL || node->depth == info.boardSize * info.boardSize)
 		return;
 	if (node->childs.empty())//if The current node as not been expand previously expand it now
 		expand(node);
@@ -276,7 +278,7 @@ void  Root::select(Node *node)
 		select(selectOneNodeWithMctsAlgo(node));
 	}
 	//std::cout << "end of select" << std::endl;
-
+	//std::cout << "END SELECT" << std::endl;
 }
 
 void Root::selectWithLimitedRange(Node * node, int minX, int maxX, int minY, int maxY) {
@@ -322,8 +324,8 @@ void Root::expand(Node*node)
 
 	//std::cout << "minY = " << minY << " maxY = " << maxY << " minX = " << minX << " maxX = " << maxX << std::endl;
 
-	for (int i = rpos.min.y; i < rpos.max.y; i ++) {
-		for (int j = rpos.min.x; j < rpos.max.x; j ++) {
+	for (int i = rpos.max.y - 1; i >= rpos.min.y; i --) {
+		for (int j = rpos.max.x - 1; j >= rpos.min.x; j --) {
 	//for (int i = 0; i < info.boardSize; i++) {
 		//for (int j = 0; j < info.boardSize; j++) {
 			if (board[i][j] == Color::NONE) {
@@ -341,11 +343,13 @@ void Root::expand(Node*node)
 				}
 				else
 					simulate(newChild);
+					//pool->enqueue(&Root::simulate, this, newChild);
 			}
 		}
 	}
 	//std::cout << "nb child : " << node->childs.size() <<  std::endl;
 	//Sleep(10000);
+	deleteBoard(board);
 }
 
 void Root::expandWithLimitedRange(Node * node, int minX, int maxX, int minY, int maxY) {
@@ -465,18 +469,31 @@ RestrainedPos Root::getRestrainedPos(Color ** board, int range)
 	return (pos);
 }
 
+void	Root::deleteBoard(Color **board)
+{
+	for (int i = info.boardSize - 1; i >= 0; i--) {
+		delete board[i];
+	}
+	delete board;
+}
 
 void Root::simulate(Node *node)
 {
-
-	
 	//std::cout << "simulate" << std::endl;
 
 	//Creating a board with actual depth play
-	Color **board = virtualBoard;
+	Color **board = new Color*[info.boardSize];
+	for (int i = 0; i < info.boardSize; i++) {
+		board[i] = new Color[info.boardSize];
+		for (int j = 0; j < info.boardSize; j++) {
+			board[i][j] = Color::NONE;
+		}
+	}
 
+	//TODO SHOULD OPTI BOARD
+	mtx.lock();
 	setBoard(board, node);
-
+	mtx.unlock();
 	int nbPlay = node->depth;
 
 	//set the ref on play
@@ -496,6 +513,7 @@ void Root::simulate(Node *node)
 
 	if (isFivePositionAligned(board, Pos(lastPlay.y, lastPlay.x), currentPlayer)) {
 		node->res = Result(2 - (currentPlayer == color));
+
 		//update(node, 1);
 		//currentNode = node;
 		//return;
@@ -507,19 +525,22 @@ void Root::simulate(Node *node)
 
 		currentPlayer = Color((int)currentPlayer + sign);
 
-		int r = 1;
+		//int r = 1;
 		//Get a valid Play
-		int i = 0;
-		lastPlay = randomPos(info.boardSize, getRestrainedPos(board,r));
+		//int i = 0;
+		//lastPlay = randomPos(info.boardSize, getRestrainedPos(board,r));
+		lastPlay = randomPos(info.boardSize);
+
 		while (board[lastPlay.y][lastPlay.x] != Color::NONE)
 		{
-			if (i >= r * r)
+			/*if (i >= r * r)
 			{
 				r++;
 				i = 0;
-			}
-			lastPlay = randomPos(info.boardSize, getRestrainedPos(board, r));
-			i++;
+			}*/
+			//lastPlay = randomPos(info.boardSize, getRestrainedPos(board, r));
+			lastPlay = randomPos(info.boardSize);
+			//i++;
 		}
 		board[lastPlay.y][lastPlay.x] = currentPlayer;
 
@@ -531,10 +552,16 @@ void Root::simulate(Node *node)
 
 	//std::cout << "end simulate" << std::endl;
 
+	mtx.lock();
 	if (nbPlay == totalNbPlays)//see If no update is better
 		update(node, 0.5, nbPlay);
 	else
 		update(node, currentPlayer == node->move.color, nbPlay);
+	mtx.unlock();
+
+	deleteBoard(board);
+	//std::cout << " END simulate" << std::endl;
+
 	//std::cout << "end of update" << std::endl;
 }
 
@@ -565,12 +592,14 @@ void Root::update(Node * node, double win, double nbplay)
 //	std::cout << "update" << std::endl;
 	double weight;
 
-	weight = node->depth / nbplay;
+	weight = 1/(nbplay + 1 - (double)(node->depth));
+	//weight = 1;
+
 	//std::cout << weight << std::endl;
 	//Sleep(1000);
 	while (node != NULL) {
-		node->nbTries += 1 * weight;
-		node->nbWins += win * weight;
+		node->nbTries += 1 *weight;
+		node->nbWins += win *weight;
 		node = node->father;
 		if (win == 1) {
 			win = 0;
